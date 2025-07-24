@@ -11,39 +11,10 @@ type Review = {
 };
 
 type ReviewsProps = {
-  doctorId: string;
+  reviews:Review[];
 };
 
-export default function Reviews({ doctorId }: ReviewsProps) {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NmY2MDc2OWI4N2IwYzU0MDc1YTYzMiIsImlhdCI6MTc1MjI0NjQxMSwiZXhwIjoxNzU0ODM4NDExfQ.mJbz4EZBXEhnOMy46TKWk0SNdN67r1VA0r7_xBleFco"
-        const res = await axios({
-            url:`http://127.0.0.1:5000/api/v1/users/doctor/${doctorId}`,
-            method:"GET",
-            headers:{
-                Authorization:token
-            }
-        });
-        const data = await res;
-        
-        console.log(data.data.data.reviews[0].comment)
-        setReviews(data.data.data.reviews)
-      } catch (err) {
-        console.error("خطا در دریافت نظرات", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, [doctorId]);
-
-  if (loading) return <p>در حال بارگذاری نظرات...</p>;
+export default function Reviews({ reviews }: ReviewsProps) {
 
   return (
     <div className="space-y-4">

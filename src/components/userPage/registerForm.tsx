@@ -1,23 +1,19 @@
 import React, { useState } from 'react';
 import photo from "../../assets/register.png"; // مسیر تصویر خود را وارد کنید
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const RegisterForm: React.FC = () => {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [dob, setDob] = useState('');
-  const [idNumber, setIdNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPass,setConfirmPass] = useState('')
+
+  const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = {
-        name,
         email,
-        birthday:dob,
-        idCard:idNumber,
         password,
         passwordConfirm:confirmPass
     }
@@ -31,8 +27,11 @@ const RegisterForm: React.FC = () => {
         method:"POST",
         data:payload,
        })
-       const data = await res;
-       console.log("yes")
+       if(res.status === 200){
+        console.log(res.data)
+        localStorage.setItem("token",res.data.token)
+        navigate("/appointment")
+       }
     }
     catch(error){
         console.log(error)

@@ -2,10 +2,11 @@
 import { useState } from "react";
 
 type Props = {
-  visitWeekdays: number[];           // مثل [0, 2, 4]
-  visitRange: [string, string];      // مثل ["7: 00", "14: 00"]
+  visitWeekdays: number[]; // مثل [0, 2, 4]
+  visitRange: [string, string]; // مثل ["7: 00", "14: 00"]
   onSelect: (dayIndex: number, time: string) => void;
-  isAvailable:string[]
+  takenTimes: string[];
+  onDayChange: (dayIndex: number) => void;
 };
 
 const weekdayNames: Record<number, string> = {
@@ -15,7 +16,7 @@ const weekdayNames: Record<number, string> = {
   3: "سه‌شنبه",
   4: "چهارشنبه",
   5: "پنجشنبه",
-  6: "جمعه"
+  6: "جمعه",
 };
 
 // تبدیل "7: 00" به دقیقه عددی → 420
@@ -31,7 +32,9 @@ const generateTimeSlots = (start: string, end: string): string[] => {
   const slots: string[] = [];
 
   for (let t = startMin; t < endMin; t += 15) {
-    const h = Math.floor(t / 60).toString().padStart(2, "0");
+    const h = Math.floor(t / 60)
+      .toString()
+      .padStart(2, "0");
     const m = (t % 60).toString().padStart(2, "0");
     slots.push(`${h}:${m}`);
   }
@@ -48,15 +51,24 @@ const getNextDateForWeekday = (weekday: number): string => {
   return new Intl.DateTimeFormat("fa-IR").format(targetDate); // تبدیل به شمسی
 };
 
-export default function DaySelector({ visitWeekdays, visitRange, onSelect ,isAvailable}: Props) {
+export default function DaySelector({
+  visitWeekdays,
+  visitRange,
+  onSelect,
+  takenTimes,
+  onDayChange,
+}: Props) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-
-  const timeSlots = selectedDay !== null ? generateTimeSlots(visitRange[0], visitRange[1]) : [];
+  console.log(takenTimes);
+  const timeSlots =
+    selectedDay !== null ? generateTimeSlots(visitRange[0], visitRange[1]) : [];
+  console.log(timeSlots);
 
   const handleDayClick = (dayIndex: number) => {
     setSelectedDay(dayIndex);
     setSelectedTime(null);
+    onDayChange?.(dayIndex); // ← صدا زدن تابعی که روز رو به بیرون می‌فرسته
   };
 
   const handleTimeClick = (time: string) => {
@@ -77,12 +89,16 @@ export default function DaySelector({ visitWeekdays, visitRange, onSelect ,isAva
               key={dayIndex}
               onClick={() => handleDayClick(dayIndex)}
               className={`w-[90px] h-[90px] rounded-xl border flex flex-col justify-center items-center transition-all
-                ${selectedDay === dayIndex
-                  ? "bg-blue-500 text-white border-blue-700"
-                  : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"}
+                ${
+                  selectedDay === dayIndex
+                    ? "bg-blue-500 text-white border-blue-700"
+                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                }
               `}
             >
-              <div className="text-sm font-semibold">{weekdayNames[dayIndex]}</div>
+              <div className="text-sm font-semibold">
+                {weekdayNames[dayIndex]}
+              </div>
               <div className="text-xs mt-1 text-gray-500">{dateLabel}</div>
             </button>
           );
@@ -91,15 +107,24 @@ export default function DaySelector({ visitWeekdays, visitRange, onSelect ,isAva
 
       {selectedDay !== null && (
         <>
-          <h4 className="text-lg font-semibold text-gray-700 mt-8 mb-4">انتخاب ساعت</h4>
+          <h4 className="text-lg font-semibold text-gray-700 mt-8 mb-4">
+            انتخاب ساعت
+          </h4>
           <div className="flex flex-wrap justify-center gap-3">
             {timeSlots.map((slot) => (
               <button
                 key={slot}
                 onClick={() => handleTimeClick(slot)}
+                disabled={takenTimes.includes(slot)}
                 className={`px-3 py-2 rounded-lg text-sm border transition-all
-                  ${selectedTime === slot ? "bg-blue-500 text-white border-blue-600" : "bg-white border-gray-300 hover:border-blue-400"}`}
-              >
+                ${
+                  takenTimes.includes(slot)
+                    ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
+                    : selectedTime === slot
+                    ? "bg-blue-500 text-white border-blue-600"
+                    : "bg-white border-gray-300 hover:border-blue-400"
+                }`}
+                          >
                 {slot}
               </button>
             ))}

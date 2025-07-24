@@ -1,6 +1,8 @@
 import AppointmentForm from "../components/appointmentPage/appointmentForm";
 import Footer from "../components/homePage/footer";
 import Header from "../components/homePage/header";
+import PatientInfoForm from "../components/appointmentPage/patientInfoForm";
+import { useState } from "react";
 
 
 
@@ -8,10 +10,16 @@ import Header from "../components/homePage/header";
 
 
 export default function (){
+    const [formData, setFormData] = useState({
+        fullName: "",
+        birthDay: "",
+        idCard: "",
+      });
     return(
         <>
             <Header/>
-            <AppointmentForm onChange={()=>console.log("data")}/>
+            <PatientInfoForm formData={formData} setFormData={setFormData}/>
+            <AppointmentForm onChange={()=>console.log("data")} formData={formData}/>
             <Footer/>
         </>
     )

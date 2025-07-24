@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import DaySelector from "./daySelector";
-// import TimeSelect from "./timeSelect";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
 import Reviews from "./reviews";
 
+type Visit = {
+  _id: string;
+  dateTime: string;
+  closed: boolean;
+};
 type Doctor = {
   _id: string;
   name: string;
@@ -20,18 +24,24 @@ type Doctor = {
     visitRange: [string, string];
     visitExceptions: string[];
   };
+  visits: Visit[]; // 👈 این خط رو اضافه کن
+  reviews?: Review[];
+};
+type Review = {
+  id: string;
+  name: string;
+  rating: number; // از ۱ تا ۵
+  comment: string;
+  date: string; // ISO format
 };
 
 export default function AppointmentForm({
   onChange,
+  formData,
 }: {
   onChange: (data: any) => void;
+  formData: any;
 }) {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    birthDay: "",
-    idCard: "",
-  });
   const { id } = useParams<string>();
 
   const [selectedDoc, setSelectedDoc] = useState<Doctor | null>(null);
@@ -41,12 +51,7 @@ export default function AppointmentForm({
 
   const [taken, setTaken] = useState<string[]>([]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const updated = { ...formData, [name]: value };
-    setFormData(updated);
-    onChange(updated);
-  };
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   const fetchDoctor = async () => {
     try {
@@ -57,55 +62,39 @@ export default function AppointmentForm({
       const data = await res;
       if (data.status === 200) {
         setSelectedDoc(data.data.data);
-        fetchTakenAppointments(data.data.data._id);
+        setTaken(data.data.data.visits);
+        setReviews(data.data.data.reviews);
       }
-      
     } catch (error) {
       console.error("خطایی رخ داد");
-    }
-  };
-  const checkAvailability = async (
-    doctorId: string,
-    dateTime: string
-  ): Promise<boolean> => {
-    try {
-      const token = localStorage.getItem("token")
-      const res = await axios.get("http://127.0.0.1:5000/api/v1/visits", {
-        params: { doctorId, dateTime },
-        headers:{
-          Authorization: `Bearer ${token}`,
-        }
-        
-      });
-      console.log(res.data);
-      return res.data.available; // فرض بر اینکه API این رو برمی‌گردونه
-    } catch (error) {
-      console.error("خطا در بررسی ظرفیت نوبت:", error);
-      return false; // در صورت خطا، نوبت رو غیردسترس در نظر می‌گیریم
-    }
-  };
-  const fetchTakenAppointments = async (doctorId: string) => {
-    try {
-      const token = localStorage.getItem("token")
-      const res = await axios.get("http://127.0.0.1:5000/api/v1/visits", {
-        params: { doctorId },
-        headers:{
-          Authorization: `Bearer ${token}`,
-        }
-      });
-      // فرض بر اینکه هر visit یک dateTime به فرمت ISO دارد
-      const booked = res.data.data.map((visit: any) => visit.dateTime);
-      setTaken(booked); // state رو آپدیت کن
-      console.log(booked)
-    } catch (error) {
-      console.error("خطا در گرفتن نوبت‌های گرفته‌شده:", error);
     }
   };
 
   useEffect(() => {
     fetchDoctor();
   }, [id]);
-  console.log(selectedDoc);
+  useEffect(() => {
+    if (!selectedDoc || !selectedDate) return;
+
+    // استخراج تاریخ دقیق روز انتخاب‌شده به صورت YYYY-MM-DD
+    const dateObj = getNextDateWithPersianWeekday(Number(selectedDate));
+    const selectedDateISO = dateObj.toISOString().split("T")[0]; // فقط بخش تاریخ
+
+    // فرض بر اینه که visits در selectedDoc موجوده
+    const allVisits: { dateTime: string }[] = selectedDoc?.["visits"] ?? [];
+
+    const takenTimes = allVisits
+      .filter((v) => v.dateTime.startsWith(selectedDateISO))
+      .map((v) => {
+        const localDate = new Date(v.dateTime);
+        const hour = localDate.getHours();
+        const minute = localDate.getMinutes();
+        return `${hour}:${minute.toString().padStart(2, "0")}`;
+      });
+
+    setTaken(takenTimes);
+    console.log(taken);
+  }, [selectedDoc, selectedDate]);
 
   const submitAppointment = async () => {
     const token = localStorage.getItem("token");
@@ -114,14 +103,6 @@ export default function AppointmentForm({
     const isoBirthDate = new Date(formData.birthDay).toISOString();
 
     try {
-      const isAvailable = await checkAvailability(
-        selectedDoc?._id!,
-        isoDateTime
-      );
-      if (!isAvailable) {
-        alert("این نوبت قبلاً رزرو شده است. لطفاً زمان دیگری انتخاب کنید.");
-        return;
-      }
       await axios.patch(
         "http://127.0.0.1:5000/api/v1/users/update-account",
         {
@@ -177,81 +158,14 @@ export default function AppointmentForm({
     const [hourStr, minuteStr] = timeStr.replace(/\s/g, "").split(":");
     const hour = parseInt(hourStr);
     const minute = parseInt(minuteStr);
-    baseDate.setHours(hour, minute, 0, 0);
+    baseDate.setHours(hour, minute, 0, 0); // این زمان به وقت مرورگر هست (مثلاً Asia/Tehran)
 
-    const pad = (n: number) => String(n).padStart(2, "0");
-
-    return `${baseDate.getFullYear()}-${pad(baseDate.getMonth() + 1)}-${pad(
-      baseDate.getDate()
-    )}T${pad(hour)}:${pad(minute)}:00`;
+    return baseDate.toISOString(); // تبدیل به UTC برای ذخیره درست در سرور
   }
 
   return (
     <section className="bg-white mt-20 px-6 md:px-32">
-      <h2 className="text-blue-700 text-center text-4xl font-bold">
-        گرفتن نوبت
-      </h2>
-      <p className="text-center mt-6 text-gray-500">
-        لطفا اطلاعات زیر را کامل کنید تا نوبت شما ثبت شود
-      </p>
       <div className="shadow-md bg-gray-50 ">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 p-6 md:p-14 rounded-lg">
-          {/* نام کامل */}
-          <div className="w-full text-right">
-            <label
-              htmlFor="fullName"
-              className="block mb-2 text-sm font-medium text-gray-700"
-            >
-              نام و نام خانوادگی
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              id="fullName"
-              placeholder="مثال: سامان سپهری"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={formData.fullName}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* شماره موبایل */}
-          <div className="w-full text-right">
-            <label
-              htmlFor="dob"
-              className="block mb-2 text-sm font-medium text-gray-700"
-            >
-              تاریخ تولد
-            </label>
-            <input
-              type="date"
-              name="birthDay"
-              id="birthDay"
-              placeholder="مثال:1376/5/30"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={formData.birthDay}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="w-full text-right">
-            <label
-              htmlFor="idNumber"
-              className="block mb-2 text-sm font-medium text-gray-700"
-            >
-              کد ملی
-            </label>
-            <input
-              type="text"
-              name="idCard"
-              pattern="\d{10}"
-              id="idCard"
-              placeholder="مثال:0312424807"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={formData.idCard}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
         {selectedDoc && (
           <div className="p-6 text-right flex flex-col items-center space-y-4">
             <img
@@ -274,11 +188,13 @@ export default function AppointmentForm({
             <DaySelector
               visitWeekdays={selectedDoc.doctorOptions.visitWeekdays}
               visitRange={selectedDoc.doctorOptions.visitRange}
-              isAvailable={taken}
+              takenTimes={taken}
               onSelect={(dayIndex, time) => {
-                console.log("روز:", dayIndex, "ساعت:", time);
-                setSelectedDate(dayIndex.toString()); // یا ساختار مناسب
-                setSelectedTime(time);
+                setSelectedDate(dayIndex.toString()); // همین‌جا خوبه
+                setSelectedTime(time); // ساعت هم اختیاریه
+              }}
+              onDayChange={(dayIndex) => {
+                setSelectedDate(dayIndex.toString()); // وقتی فقط روز انتخاب میشه
               }}
             />
           </div>
@@ -293,7 +209,7 @@ export default function AppointmentForm({
             پس از ثبت نوبت، پیام تایید برایتان ارسال خواهد شد.
           </p>
         </div>
-        {id && <Reviews doctorId={id} />}
+        {id && <Reviews reviews={reviews} />}
       </div>
     </section>
   );

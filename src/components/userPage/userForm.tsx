@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import photo from "../../assets/userPage.png";
-import { Link } from 'react-router-dom';
+import { Link , useNavigate} from 'react-router-dom';
 import axios from 'axios';
 
 const UserForm: React.FC = () => {
   const [role, setRole] = useState<'patient' | 'assistant' | 'doctor'>('patient');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate()
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -35,7 +36,7 @@ const UserForm: React.FC = () => {
       if(res.data.token){
         localStorage.setItem("token", res.data.token);
         alert("ورود با موفقیت انجام شد!");
-        console.log(res.data.token)
+        navigate("/appointment")
       }   else {
               alert("ورود موفق نبود. توکن دریافت نشد.");
               }
@@ -145,7 +146,7 @@ const UserForm: React.FC = () => {
                             >
                             ورود به حساب کاربری 
                         </button>
-                        <p className='text-sm text-blue-700 mt-4 cursor-pointer'>ورود با رمز یکبار مصرف</p>
+                        <Link to={'/getOTP'}><p className='text-sm text-blue-700 mt-4 cursor-pointer'>ورود با رمز یکبار مصرف</p></Link>
                         <Link to={'/register'}><p className='text-sm mt-4'>هنوز ثبت نام نکرده اید؟ <span className='text-sm text-blue-700 cursor-pointer'>اینجا کلیک کنید.</span></p></Link>
                     </div>
                 </form>
