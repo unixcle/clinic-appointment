@@ -34,7 +34,6 @@ const UserForm: React.FC = () => {
     try{
       const res = await axios.post("http://127.0.0.1:5000/api/v1/auth/login/email",payload)
       if(res.data.token){
-        localStorage.setItem("token", res.data.token);
         alert("ورود با موفقیت انجام شد!");
         navigate("/appointment")
       }   else {

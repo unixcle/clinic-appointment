@@ -26,8 +26,8 @@ export default function SecretarySec() {
 
   const fetchVisits = async () => {
     try {
-      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NmY2MDc2OWI4N2IwYzU0MDc1YTYzMiIsImlhdCI6MTc1MjM5NDYzNywiZXhwIjoxNzU0OTg2NjM3fQ.Jfnfx_NZZD7u68dnK2phpt6-00lbuZFIY9LBhPNgRS0";
-      const res = await axios.get("http://127.0.0.1:5000/api/v1/visits?page=1&limit=5", {
+      const token = localStorage.getItem("token")
+      const res = await axios.get('http://127.0.0.1:5000/api/v1/visits/doctor/today', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

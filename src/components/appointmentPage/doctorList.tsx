@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 
 type Doctor = {
   _id: string;
@@ -33,6 +33,7 @@ export default function DoctorList() {
       const res = await axios.get("http://127.0.0.1:5000/api/v1/users/doctor");
       if (res.status === 200) {
         setDoctors(res.data.data);
+        console.log(res.data.data)
       }
     } catch (error) {
       console.error("خطا در دریافت پزشکان");
@@ -40,9 +41,28 @@ export default function DoctorList() {
       setLoading(false);
     }
   };
+  const fetchUserInfo = async ()=>{
+    const token = localStorage.getItem("token")
+    try{
+      const res = await axios.get("http://127.0.0.1:5000/api/v1/users/get-my-info",
+        {
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+      );
+      if(res.status === 200){
+        console.log(res.data.data)
+      }
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     fetchDoctors();
+    fetchUserInfo();
   }, []);
 
   // استخراج لیست تخصص‌ها
@@ -100,13 +120,13 @@ export default function DoctorList() {
       ) : (
         <ul className="space-y-4">
           {showDoctors.map((doc) => (
-            <Link to={`/doctorPage/${doc._id}`}>
+            <Link to={`/doctorPage/${doc._id}`} key={doc._id}>
             <li
               key={doc._id}
               className="flex items-center bg-white shadow-sm border rounded-lg p-4 hover:bg-gray-50 transition"
             >
               <img
-                src={doc.photo}
+                src={`http://127.0.0.1:5000/api/v1/users/photos/${doc.photo}`}
                 alt={doc.name}
                 className="w-16 h-16 rounded-full object-cover border ml-4"
               />

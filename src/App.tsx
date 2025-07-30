@@ -12,6 +12,7 @@ import SecretaryPanel from './components/secretaryPage/secretaryPanel';
 import GetOTP from './pages/getOTP';
 import DoctorPage from './pages/doctorPage';
 import PrivateRoute from './routes/privateRoute';
+import DoctorPanel from './pages/doctorPanel';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path='/register' element={<RegisterPage/>}/>
         
         <Route path='/secretary' element={<SecretaryPanel/>}/>
+        <Route path='/docpanel' element={<DoctorPanel/>}></Route>
       </Routes>
     </BrowserRouter>
   );
