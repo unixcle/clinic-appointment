@@ -2,11 +2,14 @@ import { useState } from "react";
 import otpIcon from "../svg/otpIcon.svg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/userContext";
 
 export default function GetOTP() {
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+
+  const {user} = useUser()
 
   const navigate = useNavigate()
   const handleSendOtp = async () => {
@@ -19,7 +22,7 @@ export default function GetOTP() {
     try {
       const res = await axios.post("http://127.0.0.1:5000/api/v1/auth/otp", {
         phone,
-      });
+      },);
       if (res.data?.otp) {
         setOtp(res.data.otp); // ذخیره کد دریافتی
       }
@@ -36,8 +39,15 @@ export default function GetOTP() {
         const res = await axios.post("http://127.0.0.1:5000/api/v1/auth/login/phone",{phone,otp})
         if(res.status === 200){
             alert("ورود موفقیت امیز")
-            navigate("/appointment")
-            console.log(res.data.token)
+            if(user?.role === "patient"){
+              navigate("/appointment")
+            }else if(user?.role === "secretary"){
+              console.log(user.role)
+              navigate("/secretary")
+            }else{
+              navigate("/docpanel")
+            }
+            
             localStorage.setItem("token", res.data.token);
         }
     }

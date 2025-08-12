@@ -33,7 +33,7 @@ export default function DoctorList() {
       const res = await axios.get("http://127.0.0.1:5000/api/v1/users/doctor");
       if (res.status === 200) {
         setDoctors(res.data.data);
-        console.log(res.data.data)
+        console.log(res.data.data);
       }
     } catch (error) {
       console.error("خطا در دریافت پزشکان");
@@ -41,43 +41,25 @@ export default function DoctorList() {
       setLoading(false);
     }
   };
-  const fetchUserInfo = async ()=>{
-    const token = localStorage.getItem("token")
-    try{
-      const res = await axios.get("http://127.0.0.1:5000/api/v1/users/get-my-info",
-        {
-          headers:{
-            Authorization:`Bearer ${token}`
-          }
-        }
-      );
-      if(res.status === 200){
-        console.log(res.data.data)
-      }
-    }
-    catch(error){
-      console.log(error)
-    }
-  }
 
   useEffect(() => {
     fetchDoctors();
-    fetchUserInfo();
   }, []);
 
   // استخراج لیست تخصص‌ها
   const specializations = Array.from(
     new Set(
-      doctors
-        .map((doc) => doc.doctorOptions?.specification)
-        .filter(Boolean) // حذف null و undefined
+      doctors.map((doc) => doc.doctorOptions?.specification).filter(Boolean) // حذف null و undefined
     )
   );
 
   // فیلتر نهایی
   const filteredDoctors = doctors.filter((doc) => {
-    const matchesSearch = typeof doc.name === "string" && doc.name.toLowerCase().includes(search.toLowerCase());
-    const matchesSpec = selectedSpec === "" || doc.doctorOptions?.specification === selectedSpec;
+    const matchesSearch =
+      typeof doc.name === "string" &&
+      doc.name.toLowerCase().includes(search.toLowerCase());
+    const matchesSpec =
+      selectedSpec === "" || doc.doctorOptions?.specification === selectedSpec;
     return matchesSearch && matchesSpec;
   });
 
@@ -115,30 +97,56 @@ export default function DoctorList() {
         </select>
       </div>
 
+      {/* لیست دکترها */}
       {loading ? (
-        <p>در حال بارگذاری...</p>
+        <p className="text-center py-12">در حال بارگذاری…</p>
       ) : (
-        <ul className="space-y-4">
-          {showDoctors.map((doc) => (
-            <Link to={`/doctorPage/${doc._id}`} key={doc._id}>
-            <li
-              key={doc._id}
-              className="flex items-center bg-white shadow-sm border rounded-lg p-4 hover:bg-gray-50 transition"
-            >
-              <img
-                src={`http://127.0.0.1:5000/api/v1/users/photos/${doc.photo}`}
-                alt={doc.name}
-                className="w-16 h-16 rounded-full object-cover border ml-4"
-              />
-              <div className="text-right flex-1">
-                <h3 className="font-semibold text-lg">{doc.name}</h3>
-                <p className="text-sm text-gray-600">{doc.doctorOptions?.specification}</p>
-                <p className="text-sm text-yellow-600 mt-1">
-                  امتیاز: {doc.doctorOptions?.ratingsAverage?.toFixed(1)} ⭐
-                </p>
-              </div>
-            </li></Link>
-          ))}
+        <ul
+          dir="rtl"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          {showDoctors.map((doc) => {
+            return (
+              <li key={doc._id} className="list-none">
+                <Link to={`/doctorPage/${doc._id}`} className="block h-full">
+                  <div className="relative bg-white rounded-3xl border border-gray-200 shadow-sm p-6 text-center hover:shadow-md transition">
+                    {/* آواتار */}
+                    <img
+                      src={`http://127.0.0.1:5000/photos/users/${doc.photo}`}
+                      alt={doc.name}
+                      className="mx-auto w-20 h-20 rounded-full object-cover ring-4 ring-gray-100"
+                    />
+                    <div className="flex justify-between mt-4">
+                      {/* تخصص - بالا راست */}
+                      <span className=" text-xs text-blue-600">
+                        {doc.doctorOptions?.specification || "تخصص"}
+                      </span>
+                      <div className="flex items-center gap-1 text-gray-500 text-sm">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path d="M12 2l2.9 6.6L22 9.3l-5 4.8 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.8 7.1-1 2.9-6.6z" />
+                        </svg>
+                        <span>
+                          {(doc.doctorOptions?.ratingsAverage ?? 4.8).toFixed(
+                            1
+                          )}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* نام */}
+                    <h3 className="mt-4 font-semibold text-gray-900 truncate">
+                      {doc.name || "اسم پزشک"}
+                    </h3>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

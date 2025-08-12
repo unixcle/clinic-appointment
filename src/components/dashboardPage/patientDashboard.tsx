@@ -1,34 +1,42 @@
 // components/PatientDashboard.tsx
 
 "use client";
+//components
 import Dashcomponent from "./dashComponent";
 import VisitsComponent from "./visitsComponent";
 import UpdateInfoForm from "./updateInfoForm";
-import nobat from "../../svg/nobat.svg";
+
+
+//svg Icons
+import  nobat from "../../svg/nobat.svg";
 import nobat1 from "../../svg/nobat1.svg";
 import patientIcon from "../../assets/patientIcon.png";
 import medicalInfo from "../../svg/medical-information.svg";
 import logout from "../../svg/logout.svg";
+import { Pencil } from "lucide-react";
+
+
 import axios from "axios";
 import { useEffect, useState } from "react";
+//context
+import { useUser } from "../../contexts/userContext";
+import PassChangeComponent from "./passChangeComponent";
 
 const PatientDashboard = () => {
   const [myVisits, setMyVisits] = useState([]);
-
-  const [activeTab, setActiveTab] = useState<"dashboard" | "visits" | "update">(
+  const { user } = useUser();
+  const [activeTab, setActiveTab] = useState<"dashboard" | "visits" | "update" | "pass">(
     "dashboard"
   );
 
   const fetchVisit = async () => {
     try {
-      const token = localStorage.getItem("token");
+      // const token = Cookies.get("token");
       const res = await axios.get(
         "http://127.0.0.1:5000/api/v1/visits/patient",
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+          withCredentials:true,
+        },
       );
       if (res.status === 200) {
         setMyVisits(res.data.data);
@@ -42,7 +50,7 @@ const PatientDashboard = () => {
   }, []);
 
 
-
+  if (!user) return <div className="p-8">در حال بارگذاری اطلاعات کاربر...</div>;
   return (
     <div className="h-1/2 flex flex-col md:flex-row gap-6 px-28 py-8">
       {/* Sidebar */}
@@ -58,7 +66,7 @@ const PatientDashboard = () => {
               className="w-[64px] h-[64px]"
             />
             <div>
-              <p className="font-bold mt-1">حمید نیکوفهم</p>
+              <p className="font-bold mt-1">{user.name}</p>
               <p className="text-sm text-gray-500">مراجع کننده</p>
             </div>
           </div>
@@ -88,12 +96,21 @@ const PatientDashboard = () => {
           </div>
           <div
             className={`flex items-center justify-start gap-3 cursor-pointer ${
-              activeTab === "visits" ? "text-blue-600 font-bold" : ""
+              activeTab === "update" ? "text-blue-600 font-bold" : ""
             }`}
             onClick={() => setActiveTab("update")}
           >
             <img src={nobat1} alt="dashboard" />
             <span>تغییر اطلاعات</span>
+          </div>
+          <div
+            className={`flex items-center justify-start gap-3 cursor-pointer ${
+              activeTab === "pass" ? "text-blue-600 font-bold" : ""
+            }`}
+            onClick={() => setActiveTab("pass")}
+          >
+            <Pencil className="w-5 h-5 text-grey-600" />
+            <span>تغییر رمز عبور</span>
           </div>
         </div>
 
@@ -107,6 +124,7 @@ const PatientDashboard = () => {
       {activeTab === "dashboard" && (<Dashcomponent myVisits={myVisits}/>)}
       {activeTab === "visits" && (<VisitsComponent myVisits={myVisits}/>)}
       {activeTab === "update" && (<UpdateInfoForm/>)}
+      {activeTab === "pass" && (<PassChangeComponent/>)}
       
     </div>
   );

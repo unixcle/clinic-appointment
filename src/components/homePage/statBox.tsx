@@ -11,9 +11,9 @@ interface StatBoxProps {
 export default function StatBox({ end, suffix = "", duration = 2, label }: StatBoxProps) {
   return (
     <div className="text-center">
-      <p className="text-2xl font-bold text-blue-700">
+      <div className="text-2xl font-bold text-blue-700">
         <StatCounter end={end} duration={duration} suffix={suffix} />
-      </p>
+      </div>
       <span className="text-sm text-gray-500">{label}</span>
     </div>
   );

@@ -5,6 +5,8 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 
 import Reviews from "./reviews";
+import { useUser } from "../../contexts/userContext";
+import Cookies from "js-cookie";
 
 type Visit = {
   _id: string;
@@ -36,13 +38,14 @@ type Review = {
 };
 
 export default function AppointmentForm({
-  onChange,
   formData,
 }: {
   onChange: (data: any) => void;
   formData: any;
 }) {
   const { id } = useParams<string>();
+
+  const { user } = useUser();
 
   const [selectedDoc, setSelectedDoc] = useState<Doctor | null>(null);
 
@@ -78,6 +81,7 @@ export default function AppointmentForm({
 
     // استخراج تاریخ دقیق روز انتخاب‌شده به صورت YYYY-MM-DD
     const dateObj = getNextDateWithPersianWeekday(Number(selectedDate));
+    if (!dateObj) return;
     const selectedDateISO = dateObj.toISOString().split("T")[0]; // فقط بخش تاریخ
 
     // فرض بر اینه که visits در selectedDoc موجوده
@@ -93,29 +97,35 @@ export default function AppointmentForm({
       });
 
     setTaken(takenTimes);
-    console.log(taken);
   }, [selectedDoc, selectedDate]);
 
   const submitAppointment = async () => {
-    const token = localStorage.getItem("token");
+    // const token = Cookies.get("token");
     const isoDateTime = buildISODate(Number(selectedDate), selectedTime);
-    console.log("تاریخ و ساعت نهایی:", isoDateTime);
-    const isoBirthDate = new Date(formData.birthDay).toISOString();
+    console.log("تاریخ و ساعت نهایی:", isoDateTime, formData);
+
+    if (!formData.name || !formData.idCard) {
+      alert("لطفاً تمام اطلاعات شخصی را وارد کنید.");
+      return;
+    }
+
+    const isoBirthDate = new Date(formData.birthday).toISOString();
 
     try {
-      await axios.patch(
-        "http://127.0.0.1:5000/api/v1/users/update-account",
-        {
-          name: formData.fullName,
-          birthday: isoBirthDate,
-          idCard: formData.idCard,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      if (!user) {
+        await axios.patch(
+          "http://127.0.0.1:5000/api/v1/users/update-account",
+          {
+            name: formData.fullName,
+            birthday: isoBirthDate,
+            idCard: formData.idCard,
           },
-        }
-      );
+          {
+            withCredentials:true,
+          }
+        );
+      }
+
       const appointmentPayload = {
         doctor: selectedDoc?._id,
         dateTime: isoDateTime,
@@ -124,9 +134,7 @@ export default function AppointmentForm({
         "http://127.0.0.1:5000/api/v1/visits/patient",
         appointmentPayload,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials:true,
         }
       );
 
@@ -140,13 +148,15 @@ export default function AppointmentForm({
     } catch (error: any) {
       console.error("خطا در ثبت نوبت:", error.response?.data || error.message);
       alert("خطا در ارتباط با سرور");
+      console.log(selectedTime);
     }
   };
 
   function getNextDateWithPersianWeekday(dayIndex: number): Date {
     const today = new Date();
     const currentDay = (today.getDay() + 1) % 7; // تبدیل Sunday=0 → شنبه=0
-    const diff = (dayIndex + 7 - currentDay) % 7 || 7;
+    const diff = dayIndex - currentDay;
+
     const result = new Date(today);
     result.setDate(today.getDate() + diff);
     return result;
@@ -158,18 +168,34 @@ export default function AppointmentForm({
     const [hourStr, minuteStr] = timeStr.replace(/\s/g, "").split(":");
     const hour = parseInt(hourStr);
     const minute = parseInt(minuteStr);
-    baseDate.setHours(hour, minute, 0, 0); // این زمان به وقت مرورگر هست (مثلاً Asia/Tehran)
 
-    return baseDate.toISOString(); // تبدیل به UTC برای ذخیره درست در سرور
+    // به‌جای استفاده از toISOString (که به UTC تبدیل می‌کنه)
+    // تاریخ را به‌صورت دستی فرمت می‌کنیم
+    const localDate = new Date(
+      baseDate.getFullYear(),
+      baseDate.getMonth(),
+      baseDate.getDate(),
+      hour,
+      minute,
+      0
+    );
+
+    const yyyy = localDate.getFullYear();
+    const mm = (localDate.getMonth() + 1).toString().padStart(2, "0");
+    const dd = localDate.getDate().toString().padStart(2, "0");
+    const hh = localDate.getHours().toString().padStart(2, "0");
+    const min = localDate.getMinutes().toString().padStart(2, "0");
+
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}:00`; // مثل 2025-08-06T12:00:00
   }
 
   return (
     <section className="bg-white mt-20 px-6 md:px-32">
-      <div className="shadow-md bg-gray-50 ">
+      <div className="shadow-md rounded-2xl bg-[linear-gradient(147deg,rgba(86,87,235,0.3)_2%,rgba(50,59,180,0.1)_50%,rgba(86,87,235,0.3)_100%)]">
         {selectedDoc && (
           <div className="p-6 text-right flex flex-col items-center space-y-4">
             <img
-              src={selectedDoc.photo}
+              src={`http://127.0.0.1:5000/photos/users/${selectedDoc.photo}`}
               alt={selectedDoc.name}
               className="w-28 h-28 rounded-full object-cover border"
             />
@@ -184,7 +210,7 @@ export default function AppointmentForm({
         )}
         {/* انتخاب روز و ساعت */}
         {selectedDoc && (
-          <div className="p-10">
+          <div className="p-2">
             <DaySelector
               visitWeekdays={selectedDoc.doctorOptions.visitWeekdays}
               visitRange={selectedDoc.doctorOptions.visitRange}

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import photo from "../../assets/userPage.png";
 import { Link , useNavigate} from 'react-router-dom';
 import axios from 'axios';
+import { useUser } from '../../contexts/userContext';
 
 const UserForm: React.FC = () => {
-  const [role, setRole] = useState<'patient' | 'assistant' | 'doctor'>('patient');
+  const [type, setType] = useState<'patient' | 'secretary' | 'doctor'>('patient');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate()
+
+  const {user} = useUser()
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -17,8 +20,8 @@ const UserForm: React.FC = () => {
     setPassword(e.target.value);
   };
 
-  const handleRoleChange = (role: 'patient' | 'assistant' | 'doctor') => {
-    setRole(role);
+  const handleTypeChange = (type: 'patient' | 'secretary' | 'doctor') => {
+    setType(type);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,16 +29,19 @@ const UserForm: React.FC = () => {
 
     console.log('ایمیل:', email);
     console.log('رمز عبور:', password);
-    console.log('نقش کاربر:', role);
+    console.log('نقش کاربر:', type);
     const payload = {
       email,
       password,
     }
     try{
-      const res = await axios.post("http://127.0.0.1:5000/api/v1/auth/login/email",payload)
+      const res = await axios.post("http://127.0.0.1:5000/api/v1/auth/login/email",payload,{
+        withCredentials: true
+      })
       if(res.data.token){
+        // localStorage.setItem("token", res.data.token);
         alert("ورود با موفقیت انجام شد!");
-        navigate("/appointment")
+          navigate("/appointment")
       }   else {
               alert("ورود موفق نبود. توکن دریافت نشد.");
               }
@@ -63,20 +69,20 @@ const UserForm: React.FC = () => {
 
                 <div className="mb-4 flex space-x-4 justify-center border border-gray-400 bg-gray-100 w-[280px] mx-auto py-1 rounded-4xl">
                     <button
-                    onClick={() => handleRoleChange('patient')}
-                    className={`px-5 py-2 rounded-4xl  ${role === 'patient' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                    onClick={() => handleTypeChange('patient')}
+                    className={`px-5 py-2 rounded-4xl  ${type === 'patient' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
                     >
                     بیمار
                     </button>
                     <button
-                    onClick={() => handleRoleChange('assistant')}
-                    className={`px-4 py-2 rounded-4xl ${role === 'assistant' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                    onClick={() => handleTypeChange('secretary')}
+                    className={`px-4 py-2 rounded-4xl ${type === 'secretary' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
                     >
                     منشی
                     </button>
                     <button
-                    onClick={() => handleRoleChange('doctor')}
-                    className={`px-5 py-2 rounded-4xl ${role === 'doctor' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                    onClick={() => handleTypeChange('doctor')}
+                    className={`px-5 py-2 rounded-4xl ${type === 'doctor' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
                     >
                     دکتر
                     </button>
@@ -111,7 +117,7 @@ const UserForm: React.FC = () => {
                     />
                     </div>
 
-                    {role === 'assistant' && (
+                    {type === 'secretary' && (
                     <div className="px-6 py-4">
                         <label htmlFor="assistant-id" className="block text-sm text-gray-700">کد منشی</label>
                         <input
@@ -124,7 +130,7 @@ const UserForm: React.FC = () => {
                     </div>
                     )}
 
-                    {role === 'doctor' && (
+                    {type === 'doctor' && (
                     <div className="px-6 py-4">
                         <label htmlFor="doctor-id" className="block text-sm text-gray-700">کد دکتر</label>
                         <input

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import Cookies from "js-cookie";
 
 export default function UpdateInfoForm() {
   // یک state برای همه فیلدها
@@ -21,7 +22,7 @@ export default function UpdateInfoForm() {
     
   };
   const handleSubmit = async ()=>{
-    const token = localStorage.getItem("token")
+    // const token = Cookies.get("token")
     const isoBirthDate = new Date(formData.birthday).toISOString();
     try{
       const res= await axios.patch("http://127.0.0.1:5000/api/v1/users/update-account",
@@ -34,9 +35,10 @@ export default function UpdateInfoForm() {
           confirmPassword:formData.confirmPassword,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          // headers: {
+          //   Authorization: `Bearer ${token}`,
+          // },
+          withCredentials:true,
         }
       )
     }
@@ -116,40 +118,6 @@ export default function UpdateInfoForm() {
               value={formData.birthday}
               onChange={handleChange}
               className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-
-          {/* رمز عبور */}
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-sm text-gray-700">
-              رمز عبور
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              placeholder="رمز عبور خود را وارد کنید"
-              required
-            />
-          </div>
-
-          {/* تایید رمز عبور */}
-          <div className="mb-4">
-            <label htmlFor="confirmPassword" className="block text-sm text-gray-700">
-              تایید رمز عبور
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              placeholder="رمز عبور را تایید کنید"
               required
             />
           </div>

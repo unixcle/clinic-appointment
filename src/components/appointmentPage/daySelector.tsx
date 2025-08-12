@@ -43,12 +43,20 @@ const generateTimeSlots = (start: string, end: string): string[] => {
 };
 const getNextDateForWeekday = (weekday: number): string => {
   const today = new Date();
-  const day = today.getDay();
-  const distance = (weekday + 7 - day) % 7 || 7;
-  const targetDate = new Date(today);
-  targetDate.setDate(today.getDate() + distance);
 
-  return new Intl.DateTimeFormat("fa-IR").format(targetDate); // تبدیل به شمسی
+  // تبدیل روز میلادی به معادل شمسی-محور (شنبه=۰)
+  const currentDay = (today.getDay() + 1) % 7;
+
+  let diff = weekday - currentDay;
+
+  if (diff < 0) {
+    diff += 7; // روز گذشته بوده → هفته بعدش رو حساب کن
+  } // اگر روز گذشته باشد، هیچ تاریخی نشان داده نشود یا می‌تونی بنویسی هفته بعده
+
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() + diff);
+
+  return new Intl.DateTimeFormat("fa-IR").format(targetDate); // تاریخ شمسی
 };
 
 export default function DaySelector({
@@ -60,10 +68,8 @@ export default function DaySelector({
 }: Props) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  console.log(takenTimes);
   const timeSlots =
     selectedDay !== null ? generateTimeSlots(visitRange[0], visitRange[1]) : [];
-  console.log(timeSlots);
 
   const handleDayClick = (dayIndex: number) => {
     setSelectedDay(dayIndex);
@@ -96,10 +102,10 @@ export default function DaySelector({
                 }
               `}
             >
-              <div className="text-sm font-semibold">
+              <div className={`text-sm font-semibold`}>
                 {weekdayNames[dayIndex]}
               </div>
-              <div className="text-xs mt-1 text-gray-500">{dateLabel}</div>
+              <div className={`text-xs mt-1 text-gray-500 ${selectedDay === dayIndex ? "text-white":""}`}>{dateLabel}</div>
             </button>
           );
         })}
@@ -124,7 +130,7 @@ export default function DaySelector({
                     ? "bg-blue-500 text-white border-blue-600"
                     : "bg-white border-gray-300 hover:border-blue-400"
                 }`}
-                          >
+              >
                 {slot}
               </button>
             ))}

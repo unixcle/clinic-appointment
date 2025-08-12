@@ -15,7 +15,7 @@ import invoice from "../../svg/invoice.svg";
 
 type Visit = {
   _id: string;
-  patient: { fullName: string; phone: string } | string;
+  patient: { name: string; phone: string } | string;
   doctor: string;
   closed: boolean;
   dateTime: string;
@@ -26,24 +26,41 @@ export default function SecretarySec() {
 
   const fetchVisits = async () => {
     try {
-      const token = localStorage.getItem("token")
-      const res = await axios.get('http://127.0.0.1:5000/api/v1/visits/doctor/today', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "http://127.0.0.1:5000/api/v1/visits/doctor/today",
+        {
+          // headers: {
+          //   Authorization: `Bearer ${token}`,
+          // },
+          withCredentials:true,
+        }
+      );
 
       const visits: Visit[] = res.data.data;
-      console.log(visits)
+      console.log(visits);
 
-      const formatted = visits.map((visit, index) => ({
-        id: visit._id,
-        name: typeof visit.patient === "object" ? visit.patient.fullName : "بیمار نامشخص",
-        phone: typeof visit.patient === "object" ? visit.patient.phone : "نامشخص",
-        time: visit.dateTime || "بدون زمان",
-        status: visit.closed ? "تایید شده" : "در انتظار تایید",
-        doctor: visit.doctor,
-      }));
+      const formatted = visits.map((visit) => {
+        const date = new Date(visit.dateTime);
+        const time = date.toLocaleTimeString("fa-IR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        });
+
+        return {
+          id: visit._id,
+          name:
+            typeof visit.patient === "object"
+              ? visit.patient.name
+              : "بیمار نامشخص",
+          phone:
+            typeof visit.patient === "object" ? visit.patient.phone : "نامشخص",
+          time: time || "بدون زمان", // 👈 ساعت به‌جای تاریخ کامل
+          status: visit.closed ? "تایید شده" : "در انتظار تایید",
+          doctor: visit.doctor,
+        };
+      });
 
       setAppointments(formatted);
     } catch (error) {
@@ -60,9 +77,15 @@ export default function SecretarySec() {
       {/* Sidebar */}
       <div className="bg-white shadow-md rounded-xl p-6 w-full md:max-w-xs space-y-6">
         <div>
-          <p className="text-blue-700 font-semibold text-lg text-center">خوش آمدید!</p>
+          <p className="text-blue-700 font-semibold text-lg text-center">
+            خوش آمدید!
+          </p>
           <div className="flex justify-center items-center mt-4">
-            <img src={patientIcon} alt="PatientIcon" className="w-[64px] h-[64px]" />
+            <img
+              src={patientIcon}
+              alt="PatientIcon"
+              className="w-[64px] h-[64px]"
+            />
             <div>
               <p className="font-bold mt-1">مارال تهرانی</p>
               <p className="text-sm text-gray-500">منشی مطب</p>
@@ -96,7 +119,9 @@ export default function SecretarySec() {
       <div className="p-6 w-full mx-auto">
         {/* Header Stats */}
         <div className="flex justify-between text-sm md:text-base mb-6">
-          <span>تعداد نوبت‌های امروز: <strong>۲۴</strong></span>
+          <span>
+            تعداد نوبت‌های امروز: <strong>۲۴</strong>
+          </span>
           <span className="text-green-600">نوبت‌های تاییدشده: ۱۸ ✅</span>
           <span className="text-red-600">نوبت‌های لغوشده: ۳ ❌</span>
         </div>
