@@ -4,7 +4,7 @@ import WarnComponent from "./warnComponent";
 
 export default function PanelComponent() {
   return (
-    <div className="flex flex-col md:flex-row p-6">
+    <div className="flex flex-col md:flex-row pt-6">
       <SideComponent />
       <TreatmentPlan />
       <WarnComponent />

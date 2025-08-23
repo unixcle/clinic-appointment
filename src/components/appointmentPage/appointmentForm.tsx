@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 
 import Reviews from "./reviews";
 import { useUser } from "../../contexts/userContext";
-import Cookies from "js-cookie";
+
 
 type Visit = {
   _id: string;
@@ -100,7 +100,6 @@ export default function AppointmentForm({
   }, [selectedDoc, selectedDate]);
 
   const submitAppointment = async () => {
-    // const token = Cookies.get("token");
     const isoDateTime = buildISODate(Number(selectedDate), selectedTime);
     console.log("تاریخ و ساعت نهایی:", isoDateTime, formData);
 
@@ -109,22 +108,9 @@ export default function AppointmentForm({
       return;
     }
 
-    const isoBirthDate = new Date(formData.birthday).toISOString();
+    
 
     try {
-      if (!user) {
-        await axios.patch(
-          "http://127.0.0.1:5000/api/v1/users/update-account",
-          {
-            name: formData.fullName,
-            birthday: isoBirthDate,
-            idCard: formData.idCard,
-          },
-          {
-            withCredentials:true,
-          }
-        );
-      }
 
       const appointmentPayload = {
         doctor: selectedDoc?._id,
@@ -153,41 +139,55 @@ export default function AppointmentForm({
   };
 
   function getNextDateWithPersianWeekday(dayIndex: number): Date {
-    const today = new Date();
-    const currentDay = (today.getDay() + 1) % 7; // تبدیل Sunday=0 → شنبه=0
-    const diff = dayIndex - currentDay;
+  const today = new Date();
+  const currentDay = today.getDay(); // روز امروز به میلادی (0 = یکشنبه, 6 = شنبه)
+  
+  let diff = dayIndex - currentDay; // محاسبه تفاوت روز انتخاب‌شده با روز امروز
 
-    const result = new Date(today);
-    result.setDate(today.getDate() + diff);
-    return result;
+  if (diff < 0) {
+    diff += 7; // اگر تاریخ انتخابی از امروز گذشته باشد، هفته بعدی را در نظر می‌گیریم
   }
+
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() + diff - 1); // تعیین تاریخ دقیق با توجه به تفاوت روزها
+
+  // بررسی اینکه تاریخ انتخابی بیشتر از 30 روز از امروز نباشد
+  const thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+  if (targetDate > thirtyDaysFromNow) {
+    alert("لطفاً تاریخی را انتخاب کنید که بیشتر از ۳۰ روز جلوتر نباشد.");
+    return today; // بازگشت به تاریخ امروز در صورت انتخاب تاریخ اشتباه
+  }
+
+  return targetDate; // بازگشت تاریخ انتخابی
+}
 
   function buildISODate(dayIndex: number, timeStr: string): string {
-    const baseDate = getNextDateWithPersianWeekday(dayIndex); // مثلاً چهارشنبه آینده
+  const baseDate = getNextDateWithPersianWeekday(dayIndex); // محاسبه تاریخ روز انتخاب‌شده
 
-    const [hourStr, minuteStr] = timeStr.replace(/\s/g, "").split(":");
-    const hour = parseInt(hourStr);
-    const minute = parseInt(minuteStr);
+  const [hourStr, minuteStr] = timeStr.replace(/\s/g, "").split(":");
+  const hour = parseInt(hourStr);
+  const minute = parseInt(minuteStr);
 
-    // به‌جای استفاده از toISOString (که به UTC تبدیل می‌کنه)
-    // تاریخ را به‌صورت دستی فرمت می‌کنیم
-    const localDate = new Date(
-      baseDate.getFullYear(),
-      baseDate.getMonth(),
-      baseDate.getDate(),
-      hour,
-      minute,
-      0
-    );
+  // تبدیل تاریخ و ساعت به فرمت صحیح
+  const localDate = new Date(
+    baseDate.getFullYear(),
+    baseDate.getMonth(),
+    baseDate.getDate(),
+    hour,
+    minute,
+    0
+  );
 
-    const yyyy = localDate.getFullYear();
-    const mm = (localDate.getMonth() + 1).toString().padStart(2, "0");
-    const dd = localDate.getDate().toString().padStart(2, "0");
-    const hh = localDate.getHours().toString().padStart(2, "0");
-    const min = localDate.getMinutes().toString().padStart(2, "0");
+  const yyyy = localDate.getFullYear();
+  const mm = (localDate.getMonth() + 1).toString().padStart(2, "0");
+  const dd = localDate.getDate().toString().padStart(2, "0");
+  const hh = localDate.getHours().toString().padStart(2, "0");
+  const min = localDate.getMinutes().toString().padStart(2, "0");
 
-    return `${yyyy}-${mm}-${dd}T${hh}:${min}:00`; // مثل 2025-08-06T12:00:00
-  }
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}:00`; // تاریخ ISO فرمت شده
+}
 
   return (
     <section className="bg-white mt-20 px-6 md:px-32">

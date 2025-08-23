@@ -21,8 +21,10 @@ import { useEffect, useState } from "react";
 //context
 import { useUser } from "../../contexts/userContext";
 import PassChangeComponent from "./passChangeComponent";
+import { useNavigate } from "react-router-dom";
 
 const PatientDashboard = () => {
+  const navigate = useNavigate()
   const [myVisits, setMyVisits] = useState([]);
   const { user } = useUser();
   const [activeTab, setActiveTab] = useState<"dashboard" | "visits" | "update" | "pass">(
@@ -31,7 +33,6 @@ const PatientDashboard = () => {
 
   const fetchVisit = async () => {
     try {
-      // const token = Cookies.get("token");
       const res = await axios.get(
         "http://127.0.0.1:5000/api/v1/visits/patient",
         {
@@ -48,6 +49,19 @@ const PatientDashboard = () => {
   useEffect(() => {
     fetchVisit();
   }, []);
+
+  const handleLogout = async ()=>{
+    try{
+      const res = await axios.get("http://127.0.0.1:5000/api/v1/auth/logout",{
+        withCredentials:true,
+      })
+      if(res.status===200){
+        navigate("/user")
+      }
+    }catch(error){
+      console.log(error)
+    }
+  }
 
 
   if (!user) return <div className="p-8">در حال بارگذاری اطلاعات کاربر...</div>;
@@ -67,7 +81,7 @@ const PatientDashboard = () => {
             />
             <div>
               <p className="font-bold mt-1">{user.name}</p>
-              <p className="text-sm text-gray-500">مراجع کننده</p>
+              <p className="text-sm text-gray-500">مراجعه کننده</p>
             </div>
           </div>
         </div>
@@ -114,7 +128,7 @@ const PatientDashboard = () => {
           </div>
         </div>
 
-        <button className="flex items-center justify-center w-full text-red-500 text-sm mt-4">
+        <button className="flex items-center justify-center w-full text-red-500 text-sm mt-4 cursor-pointer" onClick={handleLogout}>
           <span>خروج از حساب</span>
           <img src={logout} alt="logout" />
         </button>

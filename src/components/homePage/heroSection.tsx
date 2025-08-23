@@ -1,5 +1,6 @@
 import health from "../../svg/health.svg"
 import heroSection from "../../assets/heroSection.png"
+
 import StatBox from "./statBox"
 
 
@@ -11,7 +12,7 @@ export default function HeroSection(){
                 {/* متن خوش‌آمدگویی و اطلاعات */}
                 <div className="text-center md:text-right space-y-6">
                     <h1 className="text-3xl md:text-4xl font-bold text-blue-800 leading-relaxed">
-                    به مطب دکتر زارعی <br /> خوش آمدید!
+                    به کلینیک سپهر<br /> خوش آمدید!
                     </h1>
                     <p className="text-gray-600 leading-7">
                     لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.
@@ -19,8 +20,9 @@ export default function HeroSection(){
                     </p>
 
                     {/* دکمه CTA */}
-                    <button className="btn-primary px-6 py-3 rounded-full text-white bg-blue-600 hover:bg-blue-700 transition flex gap-2">
-                    <img src={health} alt="health" /> گرفتن نوبت
+                    <button className="btn-primary px-6 py-3 rounded-full text-white mx-auto sm:mx-auto md:-mx-0 bg-blue-600 hover:bg-blue-700 transition flex gap-2">
+                    <img src={health} alt="health" />
+                    <p> گرفتن نوبت</p> 
                     </button>
 
                     {/* آمارها */}

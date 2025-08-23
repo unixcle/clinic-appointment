@@ -9,9 +9,9 @@ export default function GetOTP() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
 
-  const {user} = useUser()
+  const { setUser } = useUser();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleSendOtp = async () => {
     // TODO: send phone to backend
     setStep("otp");
@@ -22,7 +22,7 @@ export default function GetOTP() {
     try {
       const res = await axios.post("http://127.0.0.1:5000/api/v1/auth/otp", {
         phone,
-      },);
+      });
       if (res.data?.otp) {
         setOtp(res.data.otp); // ذخیره کد دریافتی
       }
@@ -31,30 +31,41 @@ export default function GetOTP() {
 
   const handleVerifyOtp = async () => {
     // TODO: verify OTP
-    loginOtp()
+    loginOtp();
   };
 
-  const loginOtp = async ()=>{
-    try{
-        const res = await axios.post("http://127.0.0.1:5000/api/v1/auth/login/phone",{phone,otp})
-        if(res.status === 200){
-            alert("ورود موفقیت امیز")
-            if(user?.role === "patient"){
-              navigate("/appointment")
-            }else if(user?.role === "secretary"){
-              console.log(user.role)
-              navigate("/secretary")
-            }else{
-              navigate("/docpanel")
-            }
-            
-            localStorage.setItem("token", res.data.token);
+  const loginOtp = async () => {
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:5000/api/v1/auth/login/phone",
+        { phone, otp },
+        { withCredentials: true }
+      );
+      if (res.status === 200) {
+        alert("ورود موفقیت امیز");
+        const me = await axios.get(
+          "http://127.0.0.1:5000/api/v1/users/get-my-info",
+          { withCredentials: true }
+        );
+        console.log(me)
+        const meUser = me.data.data; // یا هر کلیدی که بکند برمی‌گرداند
+        
+        if (meUser) {
+          setUser(meUser);
+          if (meUser.role === "secretary") {
+            navigate("/secretary");
+          } else if(meUser.role === "doctor") {
+            navigate("/doctorPanel");
+          }
+        } else {
+          // fallback
+          navigate("/appointment");
         }
+      }
+    } catch (error) {
+      console.log(error);
     }
-    catch(error){
-        console.log(error)
-    }
-  }
+  };
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -91,7 +102,7 @@ export default function GetOTP() {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 text-center tracking-widest text-lg focus:outline-none focus:ring focus:ring-blue-400"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-              />s
+              />
               <button
                 onClick={handleVerifyOtp}
                 className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"

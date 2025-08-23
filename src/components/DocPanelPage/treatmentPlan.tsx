@@ -1,11 +1,37 @@
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
+
+
+type drugs = {
+  name:string;
+  _id:string;
+  category:string;
+}
 export default function TreatmentPlan() {
+  const [drugs, setDrugs] = useState<drugs[]>([]);
   const [medicine, setMedicine] = useState("");
   const [duration, setDuration] = useState(5);
   const [dose, setDose] = useState("");
   const [testRequest, setTestRequest] = useState("اختیاری");
   const [testType, setTestType] = useState("نوع آزمایش");
+
+  const fetchDrugs = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:5000/api/v1/drugs", {
+        withCredentials: true,
+      });
+      if (res.status === 200) {
+        setDrugs(res.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDrugs();
+  }, []);
   return (
     <>
       <div className="max-w-xl mx-auto p-16 bg-white rounded-lg shadow-lg">
@@ -24,12 +50,19 @@ export default function TreatmentPlan() {
               id="medicine"
               value={medicine}
               onChange={(e) => setMedicine(e.target.value)}
-              className="w-1/2 p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md"
             >
-              <option>انتخاب از لیست داروها</option>
-              <option>آنتی‌بیوتیک</option>
-              <option>استامینوفن</option>
+              {drugs.length > 0 ? (
+                drugs.map((drug, index) => (
+                  <option key={index} value={drug.name}>
+                    {drug.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>هیچ دارویی موجود نیست</option>
+              )}
             </select>
+            <p>تعداد:</p>
             <input
               type="number"
               id="duration"

@@ -5,7 +5,7 @@ import warning from "../../svg/warning-error.svg"
 export default function WarnComponent(){
     return(
         <>
-            <section className="pl-16">
+            <section className="pl-16 mx-5">
                 <div className="p-6 bg-white rounded-lg shadow-lg">
                     <h4 className="text-center text-lg mb-6">هشدار های اتوماتیک</h4>
                     <div className="flex gap-6 mb-4">

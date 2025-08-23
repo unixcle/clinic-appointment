@@ -1,6 +1,5 @@
 // components/Reviews.tsx
-import axios from "axios";
-import { useEffect, useState } from "react";
+
 
 type Review = {
   id: string;
@@ -16,6 +15,7 @@ type ReviewsProps = {
 
 export default function Reviews({ reviews }: ReviewsProps) {
 
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold text-center">نظرات بیماران</h2>
@@ -23,10 +23,10 @@ export default function Reviews({ reviews }: ReviewsProps) {
         <p className="text-center">هنوز نظری ثبت نشده است.</p>
       ) : (
         reviews.map((review) => (
-          <div key={review.id} className="border rounded p-4 shadow-sm">
+          <div key={review.id} className="rounded-2xl divide-dashed p-4 shadow-sm bg-white opacity-50">
             <div className="flex justify-between mb-1">
               <span className="font-semibold">{review.name}</span>
-              <span className="text-sm text-gray-500">{new Date(review.date).toLocaleDateString()}</span>
+              <span className="text-sm text-gray-500">1304/3/23</span>
             </div>
             <div className="text-yellow-500">
               {"⭐".repeat(review.rating)}{" "}

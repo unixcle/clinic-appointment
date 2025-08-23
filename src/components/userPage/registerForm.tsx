@@ -26,10 +26,12 @@ const RegisterForm: React.FC = () => {
         url:"http://127.0.0.1:5000/api/v1/auth/sign-up/email",
         method:"POST",
         data:payload,
-       })
-       if(res.status === 200){
+        withCredentials:true,
+       },)
+       console.log(res)
+       if(res.status === 201){
+        alert("شما ثبت نام کردید!")
         console.log(res.data)
-        localStorage.setItem("token",res.data.token)
         navigate("/appointment")
        }
     }
@@ -39,11 +41,11 @@ const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-        <div className="flex max-w-6xl w-full bg-white">
+    <div className="min-h-screen md:min-h-[60vh] flex items-center justify-center md:mt-10">
+        <div className="flex max-w-6xl w-full bg-white md:mx-4">
             
             {/* باکس فرم سمت راست */}
-            <div className="flex-1 p-8 space-y-6 shadow-lg rounded-3xl">
+            <div className="flex-1 p-8 md:p-4 lg:p-4 md:mx-2 space-y-6 shadow-lg rounded-3xl sm:mx-8">
             <h2 className="text-2xl text-center font-bold text-blue-700 mb-6">ثبت‌نام بیمار جدید</h2>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -108,7 +110,7 @@ const RegisterForm: React.FC = () => {
             </div>
 
             {/* باکس عکس سمت چپ */}
-            <div className="flex-shrink-0 w-1/2 flex justify-center items-center">
+            <div className="flex-shrink-0 w-1/2 flex justify-center items-center md:mx-4 sm:hidden hidden md:block lg:block md:p-3">
             <img src={photo} alt="Nurse" className="w-[552px] mx-auto" />
             </div>
         </div>

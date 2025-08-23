@@ -31,7 +31,7 @@ function App() {
         <Route path='/register' element={<RegisterPage/>}/>
         
         <Route path='/secretary' element={<SecretaryPanel/>}/>
-        <Route path='/docpanel' element={<DoctorPanel/>}></Route>
+        <Route path='/doctorPanel' element={<DoctorPanel/>}></Route>
       </Routes>
     </BrowserRouter>
   );

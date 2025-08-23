@@ -10,7 +10,7 @@ const UserForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate()
 
-  const {user} = useUser()
+  const {refetchUser} = useUser()
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -39,9 +39,9 @@ const UserForm: React.FC = () => {
         withCredentials: true
       })
       if(res.data.token){
-        // localStorage.setItem("token", res.data.token);
         alert("ورود با موفقیت انجام شد!");
           navigate("/appointment")
+          await refetchUser()
       }   else {
               alert("ورود موفق نبود. توکن دریافت نشد.");
               }
@@ -52,19 +52,19 @@ const UserForm: React.FC = () => {
 
   return (
     <section>
-        <div className='mt-20 mr-40 text-sm'>
+        {/* <div className='mt-20 mr-40 text-sm'>
           <ul className='flex'>
               <li className="">صفحه اصلی</li>/ 
               <li>صفحه ورود</li>
           </ul>
-        </div>
-        <div className="min-h-screen flex items-center justify-center bg-cover bg-center">
+        </div> */}
+        <div className="min-h-screen md:min-h-[60vh] flex items-center justify-center bg-cover bg-center mt-8 md:px-10 md:gap-5">
             <div className="flex w-full max-w-6xl bg-white rounded-lg">
                 
                 
 
                 {/* باکس فرم سمت راست */}
-                <div className="flex-1 p-8 space-y-6 shadow-lg rounded-3xl">
+                <div className="flex-1 p-6 space-y-6 md:mx-4 shadow-lg rounded-3xl sm:mx-8">
                 <h2 className="text-2xl font-bold text-blue-700 text-center mb-6">خوش آمدید! لطفا وارد حساب خود شوید.</h2>
 
                 <div className="mb-4 flex space-x-4 justify-center border border-gray-400 bg-gray-100 w-[280px] mx-auto py-1 rounded-4xl">
@@ -157,8 +157,8 @@ const UserForm: React.FC = () => {
                 </form>
                 </div>
                 {/* باکس عکس سمت چپ */}
-                <div className="flex-shrink-0 w-1/2 items-center">
-                <img src={photo} alt="Doctor" className="w-[552px] mx-auto" />
+                <div className="flex-shrink-0 w-1/2 items-center sm:hidden md:block lg:block hidden">
+                <img src={photo} alt="Doctor" className="w-[552px] h-full mx-auto" />
                 </div>
             </div>
         </div>

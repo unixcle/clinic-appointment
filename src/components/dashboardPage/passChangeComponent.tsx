@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import Cookies from "js-cookie";
+
 
 export default function PassChangeComponent() {
   const [passData, setPassData] = useState({
@@ -15,20 +15,22 @@ export default function PassChangeComponent() {
       [name]: value,
     }));
   };
-  const handleSubmit = () => {
-    // const token = Cookies.get("token");
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
     try {
-      const res = axios.patch(
+      const res = await axios.patch(
         "http://127.0.0.1:5000/api/v1/auth/update-password",
         {
           currentPassword: passData.currentPassword,
-          password: passData.password,
-          confirmPassword: passData.confirmPassword,
+          newPassword: passData.password,
+          newPasswordConfirm: passData.confirmPassword,
         },
         {
           withCredentials:true,
         }
       ); 
+      console.log(res)
       alert("رمز عبور با موفقیت تغییر کرد ✅");
       // optionally reset form:
       setPassData({
@@ -51,7 +53,7 @@ export default function PassChangeComponent() {
 
         <form
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          onSubmit={() => handleSubmit()}
+          onSubmit={(e) => handleSubmit(e)}
         >
           {/* رمز فعلی  */}
           <div className="mb-4">

@@ -26,13 +26,9 @@ export default function SecretarySec() {
 
   const fetchVisits = async () => {
     try {
-      // const token = localStorage.getItem("token");
       const res = await axios.get(
         "http://127.0.0.1:5000/api/v1/visits/doctor/today",
         {
-          // headers: {
-          //   Authorization: `Bearer ${token}`,
-          // },
           withCredentials:true,
         }
       );
@@ -118,17 +114,18 @@ export default function SecretarySec() {
       {/* Main content */}
       <div className="p-6 w-full mx-auto">
         {/* Header Stats */}
-        <div className="flex justify-between text-sm md:text-base mb-6">
+        <div className="flex justify-center text-sm md:text-base mb-6">
           <span>
-            تعداد نوبت‌های امروز: <strong>۲۴</strong>
+            تعداد نوبت‌های امروز: <strong>{appointments.length}</strong>
           </span>
-          <span className="text-green-600">نوبت‌های تاییدشده: ۱۸ ✅</span>
-          <span className="text-red-600">نوبت‌های لغوشده: ۳ ❌</span>
         </div>
 
         {/* Table Container */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="flex items-center px-6 py-4 border-b gap-4">
+            <div className="flex-1 text-center">
+              <h2 className="text-lg font-semibold">جدول نوبت‌ها</h2>
+            </div>
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -136,23 +133,6 @@ export default function SecretarySec() {
                 placeholder="جستجو بر اساس نام یا کد ملی"
               />
               <Search className="absolute left-2 top-2.5 w-4 h-4 text-gray-400" />
-            </div>
-
-            <div className="flex-1 text-center">
-              <h2 className="text-lg font-semibold">جدول نوبت‌ها</h2>
-            </div>
-
-            <div className="flex-1">
-              <select
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none"
-                defaultValue=""
-                onChange={(e) => console.log("فیلتر:", e.target.value)}
-              >
-                <option value="">همه وضعیت‌ها</option>
-                <option value="تایید شده">تایید شده</option>
-                <option value="لغو شده">لغو شده</option>
-                <option value="در انتظار تایید">در انتظار تایید</option>
-              </select>
             </div>
           </div>
 

@@ -13,7 +13,7 @@ import link from "../../svg/link.svg";
 export default function SideComponent() {
   return (
     <>
-      <div className="h-1/2 flex flex-col md:flex-row pr-16 py-8">
+      <div className="h-1/2 flex flex-col md:flex-row pr-16 py-8 mx-5">
         {/* Sidebar */}
         <div className="bg-white shadow-md rounded-xl p-6 w-full md:max-w-xs space-y-6">
           <div>
