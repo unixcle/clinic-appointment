@@ -65,7 +65,7 @@ const PostReview = ({ visits }: any) => {
   }, [visits]);
 
   return (
-    <div className="w-[80%] mx-auto p-6 bg-white rounded-xl shadow-md mt-5">
+    <div className="w-[80%] mx-auto p-6 md:px-24 bg-white rounded-xl shadow-md mt-5">
       <h2 className="text-2xl font-semibold text-blue-700 mb-4">
         نظر خود را وارد کنید
       </h2>
@@ -111,7 +111,7 @@ const PostReview = ({ visits }: any) => {
       <div className="text-center">
         <button
           onClick={handleFormSubmit}
-          className="w-full bg-blue-500 text-white p-3 rounded-4xl hover:bg-blue-600"
+          className="w-[150px] bg-blue-500 text-white p-3 rounded-4xl hover:bg-blue-600"
           disabled={!canReview} // غیرفعال کردن دکمه ارسال نظر اگر اجازه نداشته باشد
         >
           ارسال نظر

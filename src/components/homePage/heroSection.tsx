@@ -1,5 +1,6 @@
 import health from "../../svg/health.svg"
 import heroSection from "../../assets/heroSection.png"
+import { Link } from "react-router-dom"
 
 import StatBox from "./statBox"
 
@@ -22,7 +23,7 @@ export default function HeroSection(){
                     {/* دکمه CTA */}
                     <button className="btn-primary px-6 py-3 rounded-full text-white mx-auto sm:mx-auto md:-mx-0 bg-blue-600 hover:bg-blue-700 transition flex gap-2">
                     <img src={health} alt="health" />
-                    <p> گرفتن نوبت</p> 
+                    <Link to="/appointment"><p> گرفتن نوبت</p> </Link>
                     </button>
 
                     {/* آمارها */}

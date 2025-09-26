@@ -18,7 +18,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 mt-5 z-50">
       <nav
-        className="container bg-white mx-auto grid grid-cols-3 items-center shadow-md round-nav py-4 px-6"
+        className="container bg-white mx-auto grid grid-cols-3 items-center md:shadow-md shadow-none round-nav mobile py-4 px-6"
         role="navigation"
         aria-label="Main navigation"
       >
@@ -77,18 +77,18 @@ export default function Header() {
           { !user ? <Link to={"/user"}>
             <button className="flex items-center gap-1 hover-btn">
               <img src={user1} alt="users" />
-              <p className="hidden lg:block">ورود کاربران</p>
+              <p className="sm:hidden none lg:block">ورود کاربران</p>
             </button>
           </Link>:<Link to={"/dashboard"}>
             <button className="flex items-center gap-1 hover-btn">
-              <img src={user1} alt="users" />
-              <p className="hidden lg:block">پروفایل من</p>
+              <img src={user1} alt="users"/>
+              <p className="sm:hidden none lg:block">پروفایل من</p>
             </button>
           </Link>}
           <Link to="/appointment">
             <button className="btn-primary flex items-center gap-2 cursor-pointer">
               <img src={health} alt="health" />
-              <p className="hidden lg:block">گرفتن نوبت</p>
+              <p className="sm:hidden none lg:block">گرفتن نوبت</p>
             </button>
           </Link>
         </div>

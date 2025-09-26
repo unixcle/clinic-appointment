@@ -13,7 +13,8 @@ import nobat1 from "../../svg/nobat1.svg";
 import patientIcon from "../../assets/patientIcon.png";
 import medicalInfo from "../../svg/medical-information.svg";
 import logout from "../../svg/logout.svg";
-import { Pencil } from "lucide-react";
+import { Key } from "lucide-react";
+import { Edit } from "lucide-react";
 
 
 import axios from "axios";
@@ -66,9 +67,9 @@ const PatientDashboard = () => {
 
   if (!user) return <div className="p-8">در حال بارگذاری اطلاعات کاربر...</div>;
   return (
-    <div className="h-1/2 flex flex-col md:flex-row gap-6 px-28 py-8">
+    <div className="h-1/2 flex flex-col md:flex-row gap-6 px-6 md:px-28 py-8">
       {/* Sidebar */}
-      <div className="bg-white shadow-md rounded-xl p-6 w-full md:max-w-xs space-y-6">
+      <div className="bg-white shadow-none md:shadow-md rounded-xl p-6 w-full md:max-w-xs space-y-6">
         <div className="">
           <p className="text-blue-700 font-semibold text-lg text-center">
             خوش آمدید!
@@ -87,7 +88,7 @@ const PatientDashboard = () => {
         </div>
         <div className="space-y-6 text-right text-based text-gray-700 p-8">
           <div
-            className={`flex items-center justify-start gap-3 cursor-pointer ${
+            className={`flex items-center md:justify-start gap-3 cursor-pointer justify-center ${
               activeTab === "dashboard" ? "text-blue-600 font-bold" : ""
             }`}
             onClick={() => setActiveTab("dashboard")}
@@ -96,7 +97,7 @@ const PatientDashboard = () => {
             <span>داشبورد</span>
           </div>
           <div
-            className={`flex items-center justify-start gap-3 cursor-pointer ${
+            className={`flex items-center md:justify-start gap-3 cursor-pointer justify-center ${
               activeTab === "visits" ? "text-blue-600 font-bold" : ""
             }`}
             onClick={() => setActiveTab("visits")}
@@ -104,26 +105,26 @@ const PatientDashboard = () => {
             <img src={nobat1} alt="dashboard" />
             <span>نوبت‌های من</span>
           </div>
-          <div className="flex items-center justify-start gap-3">
+          <div className="flex items-center md:justify-start gap-3 justify-center">
             <img src={medicalInfo} alt="nobat" />
             <span>نسخه‌های من</span>
           </div>
           <div
-            className={`flex items-center justify-start gap-3 cursor-pointer ${
+            className={`flex items-center md:justify-start gap-3 cursor-pointer justify-center ${
               activeTab === "update" ? "text-blue-600 font-bold" : ""
             }`}
             onClick={() => setActiveTab("update")}
           >
-            <img src={nobat1} alt="dashboard" />
+            <Edit className="w-5 h-5 text-grey-600" />
             <span>تغییر اطلاعات</span>
           </div>
           <div
-            className={`flex items-center justify-start gap-3 cursor-pointer ${
+            className={`flex items-center md:justify-start gap-3 cursor-pointer justify-center ${
               activeTab === "pass" ? "text-blue-600 font-bold" : ""
             }`}
             onClick={() => setActiveTab("pass")}
           >
-            <Pencil className="w-5 h-5 text-grey-600" />
+            <Key className="w-5 h-5 text-grey-600" />
             <span>تغییر رمز عبور</span>
           </div>
         </div>

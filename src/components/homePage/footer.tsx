@@ -93,7 +93,7 @@ export default function Footer() {
       </div>
 
       <div className="text-center text-xs mt-8 text-gray-500">
-        © ۱۴۰۴ - مطب دکتر زارعی
+        © ۱۴۰۴ - کلینیک سپهر
       </div>
     </footer>
   );

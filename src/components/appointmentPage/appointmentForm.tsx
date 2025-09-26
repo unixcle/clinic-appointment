@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import DaySelector from "./daySelector";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import Swal from "sweetalert2";
 import Reviews from "./reviews";
 import { useUser } from "../../contexts/userContext";
 
@@ -125,16 +125,27 @@ export default function AppointmentForm({
       );
 
       if (res.status === 200 || res.status === 201) {
-        alert("نوبت با موفقیت ثبت شد!");
-        console.log(appointmentPayload);
+        Swal.fire({
+        icon: "success",
+        title: "نوبت با موفقیت ثبت شد!",
+        html: `
+          <p>دکتر: ${appointmentPayload.doctor}</p>
+          <p>تاریخ: ${appointmentPayload.dateTime}</p>
+        `,
+        confirmButtonText: "باشه",
+      });
       } else {
-        alert("ثبت نوبت با مشکل مواجه شد");
-        console.log(appointmentPayload);
+        Swal.fire({
+        icon: "warning",
+        title: "ثبت نوبت با مشکل مواجه شد",
+        confirmButtonText: "باشه",
+      });
       }
     } catch (error: any) {
-      console.error("خطا در ثبت نوبت:", error.response?.data || error.message);
-      alert("خطا در ارتباط با سرور");
-      console.log(selectedTime);
+      Swal.fire({
+      icon: "error",
+      title: "خطا در ارتباط با سرور",
+      confirmButtonText: "باشه",})
     }
   };
 

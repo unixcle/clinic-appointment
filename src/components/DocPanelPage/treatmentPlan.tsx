@@ -34,7 +34,7 @@ export default function TreatmentPlan() {
   }, []);
   return (
     <>
-      <div className="max-w-xl mx-auto p-16 bg-white rounded-lg shadow-lg">
+      <div className="max-w-xl mx-auto p-16 h-[600px] bg-white rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">نوشتن نسخه جدید</h2>
 
         {/* داروها */}

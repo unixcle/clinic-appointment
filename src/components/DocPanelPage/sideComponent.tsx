@@ -30,7 +30,7 @@ export default function SideComponent() {
             </div>
           </div>
 
-          <div className="space-y-6 text-right text-base text-gray-700 p-8">
+          <div className="space-y-6 text-right text-base text-gray-700 p-5">
             <p><span className="text-bold">کد ملی : </span> 0312424607</p>
             <p><span className="text-bold">شماره تماس : </span> 09125678965</p>
             <p><span className="text-bold">سوابق بیماری : </span> لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان</p>
